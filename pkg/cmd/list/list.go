@@ -5,25 +5,32 @@ package list
 
 import (
 	"github.com/spf13/cobra"
-	"hankquan.top/ecron/pkg/cmd"
-	"hankquan.top/ecron/pkg/crontab"
+	"hankquan.top/ecron/pkg/store/crontab"
 	"hankquan.top/ecron/pkg/util"
 )
 
 type ListOption struct {
 }
 
-var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all cron jobs",
-	Long:  `List all cron jobs by crontab -l`,
-	Run: func(cmd *cobra.Command, args []string) {
-		cronLines := crontab.GetCronElements()
-		util.PrintTable(cronLines)
-	},
+func NewListCommand() *cobra.Command {
+	listOptions := &ListOption{}
+	var listCmd = &cobra.Command{
+		Use:   "list",
+		Short: "List all cron jobs",
+		Long:  `List all cron jobs by crontab -l`,
+		Args:  cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			util.CheckError(listOptions.Run())
+		},
+	}
+	return listCmd
 }
 
-func init() {
-	cmd.RootCmd.AddCommand(listCmd)
-	//cmd.rootCmd.AddCommand(listCmd)
+func (ListOption *ListOption) Run() error {
+	cronLines, err := crontab.GetCronEntries()
+	if err != nil {
+		return err
+	}
+	util.PrintTable(cronLines)
+	return nil
 }

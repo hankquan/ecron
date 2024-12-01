@@ -35,12 +35,11 @@ INDEX   CRON_EXPR       CMD             NEXT_SCHEDULED          STATE
 
 ```shell
 ecron add --minutely /opt/script.sh
-ecron add --hourly /opt/script.sh
-ecron add --hourly --quarter=0/1/2/3 /opt/script.sh
+ecron add --hourly --at 13:00 /opt/script.sh
 ecron add --daily /opt/script.sh
-ecron add --daily --at=1am /opt/script.sh
+ecron add --daily --at 1:00 /opt/script.sh
 ecron add --weekly /opt/script.sh
-ecron add --weekly --on=monday --at=12pm /opt/script.sh
+ecron add --weekly --on monday --at 12:00 /opt/script.sh
 ```
 
 #### 通过cron表达式添加一个cron job
@@ -52,8 +51,8 @@ ecron add --expr='0 12 15 * *' /opt/script.sh
 ### 修改一个cron job
 
 ```shell
-ecron edit --hourly {index}
-ecron edit --expr='0 10 15 * *' --cmd=/opt/script2.sh {index}
+ecron edit [INDEX] --hourly 
+ecron edit [INDEX] --expr='0 10 15 * *' --cmd=/opt/script2.sh 
 ```
 
 ### 暂停/启用一个cron job
@@ -62,19 +61,36 @@ stop命令会将这行job注释掉，不会直接删除。
 可以使用start命令重新启用
 
 ```shell
-ecron stop {index}
-ecron start {index}
+ecron stop [INDEX]
+ecron start [INDEX]
 ```
 
 ### 删除一个cron job
 
 ```shell
-ecron remove {index}
+ecron remove [INDEX]
+```
+
+### 管理修定历史
+
+```shell
+ecron get history
+INDEX   BACKUP_FILE                             CHANGE_LOG
+1       ~/.ecron/history/cron.backup            add ***** /bash
+2       ~/.ecron/history/cron20240801.1.backup  remove ***** /bash
+3       ~/.ecron/history/cron20240801.2.backup  stop ***** /bash
+4       ~/.ecron/history/cron20240801.3.backup  start ***** /bash
+4       ~/.ecron/history/cron20240801.5.backup  revert from ~/.ecron/history/cron20240801.3.backup
+5       ~/.ecron/history/cron20240801.4.backup  change ***** /bash to *** /bash
+
+ecron revert-to {INDEX}
 ```
 
 ## 个性化配置
 
 用户可以通过配置文件来控制一些个性化行为。
+./.ecron/history/all
+./.ecron/history/h1.ct
 
 ~/.ecron/config.json
 

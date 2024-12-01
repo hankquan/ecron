@@ -1,46 +1,35 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
+	"hankquan.top/ecron/pkg/cmd/add"
+	"hankquan.top/ecron/pkg/cmd/list"
+	"hankquan.top/ecron/pkg/cmd/remove"
+	"hankquan.top/ecron/pkg/cmd/start"
+	"hankquan.top/ecron/pkg/cmd/stop"
+	"hankquan.top/ecron/pkg/cmd/version"
 )
 
-// rootCmd represents the base command when called without any subcommands
-var RootCmd = &cobra.Command{
-	Use:   "ecron",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
-}
-
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
-	err := RootCmd.Execute()
-	if err != nil {
-		os.Exit(1)
+func NewEcronCommand(buildVersion string, buildTime string) *cobra.Command {
+	var ecronCommand = &cobra.Command{
+		Use:   "ecron [command] [flags]",
+		Short: "ecron is an easy cli tool for managing crontab",
+		Long: `ecron is a simple and intuitive command-line tool designed for managing Linux crontab scheduled tasks.
+Find more information at: https://github.com/hankquan/ecron`,
+		// Run: func(cmd *cobra.Command, args []string) { },
 	}
-}
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	ecronCommand.SetHelpCommand(&cobra.Command{
+		Use:    "help",
+		Hidden: true,
+	})
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.ecron.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	RootCmd.Flags().BoolP("toggle", "", false, "Help message for toggle")
+	ecronCommand.AddCommand(list.NewListCommand())
+	ecronCommand.AddCommand(add.NewAddCommand())
+	ecronCommand.AddCommand(add.NewEditCommand())
+	ecronCommand.AddCommand(remove.NewRemoveCommand())
+	ecronCommand.AddCommand(version.NewVersionCommand(buildVersion, buildTime))
+	ecronCommand.AddCommand(start.NewStartCommand())
+	ecronCommand.AddCommand(stop.NewStopCommand())
+	return ecronCommand
 }

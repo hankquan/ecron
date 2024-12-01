@@ -1,22 +1,30 @@
-以下是使用Go语言的`cobra`框架来实现满足你需求的命令行工具的示例代码，这个工具可以用来管理定时任务相关的操作（模拟类似`ecron`的功能），以下是具体步骤：
+以下是使用Go语言的`cobra`框架来实现满足你需求的命令行工具的示例代码，这个工具可以用来管理定时任务相关的操作（模拟类似
+`ecron`的功能），以下是具体步骤：
 
 ### 1. 安装`cobra`框架
+
 在命令行中执行以下命令来安装`cobra`：
+
 ```bash
 go install github.com/spf13/cobra-cli
 ```
 
 ### 2. 创建项目目录结构并初始化`cobra`项目
+
 创建一个项目目录，比如叫 `ecron`，然后在该目录下打开命令行，执行以下命令初始化`cobra`项目：
+
 ```bash
 cobra-cli init --pkg-name ecron
 ```
+
 这会生成一些基础的文件和目录结构，包括 `main.go`、`cmd` 目录等。
 
 ### 3. 编写命令相关代码
+
 在 `cmd` 目录下创建各个具体功能对应的命令文件，这里以实现你提到的命令为例：
 
 - **`list.go` 文件（实现 `ecron list` 命令）**：
+
 ```go
 package cmd
 
@@ -44,6 +52,7 @@ func init() {
 ```
 
 - **`add.go` 文件（实现各种 `ecron add` 相关命令）**：
+
 ```go
 package cmd
 
@@ -161,6 +170,7 @@ func getDayNumber(day string) int {
 ```
 
 - **`main.go` 文件（入口文件，整合命令）**：
+
 ```go
 package main
 
@@ -172,11 +182,15 @@ func main() {
 ```
 
 ### 4. 运行项目及测试命令
+
 在命令行切换到项目的根目录（`ecron-cli` 目录），然后执行以下命令来运行项目：
+
 ```bash
 go run main.go
 ```
+
 之后就可以测试各个命令了，比如：
+
 - `go run main.go ecron list`：会输出提示当前还没有任务可展示的信息（因为实际获取任务列表逻辑还没完善）。
 - `go run main.go ecron add --minutely /opt/script.sh`：会打印出根据 `minutely` 规则生成的定时任务信息以及对应的脚本路径（同样只是模拟，没真正保存任务）。
 - 按照你提供的其他命令格式类似地进行测试，如 `go run main.go ecron add --hourly --quarter=0/1/2/3 /opt/script.sh` 等。
