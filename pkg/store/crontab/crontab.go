@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/robfig/cron/v3"
-	"hankquan.top/ecron/pkg/store/backup"
+	"hankquan.top/ecron/pkg/store/history"
 	"log"
 	"os/exec"
 	"regexp"
@@ -45,10 +45,10 @@ func AddCronEntry(cronExpr string, cmd string) error {
 		return err
 	}
 
-	defer backup.FlushHistoryCache()
-	backup.CacheCronFile(content)
+	defer history.FlushHistoryCache()
+	history.CacheCronFile(content)
 
-	backup.AddChangeLog("add " + cronExpr + " " + cmd)
+	history.AddChangeLog("add " + cronExpr + " " + cmd)
 	newEntry := fmt.Sprintf("%s %s", cronExpr, cmd)
 
 	err = writeCronFile(appendEntry(content, newEntry))
@@ -64,8 +64,8 @@ func EditCronEntry(lineNumber int, cronExpr string, cmd string) error {
 		return err
 	}
 
-	defer backup.FlushHistoryCache()
-	backup.CacheCronFile(content)
+	defer history.FlushHistoryCache()
+	history.CacheCronFile(content)
 
 	lines := strings.Split(content, "\n")
 
@@ -88,7 +88,7 @@ func EditCronEntry(lineNumber int, cronExpr string, cmd string) error {
 
 	lines[lineNumber-1] = fmt.Sprintf("%s %s", cronExpr, cmd)
 
-	backup.AddChangeLog(fmt.Sprintf("edit %d %s %s", lineNumber, cronExpr, cmd))
+	history.AddChangeLog(fmt.Sprintf("edit %d %s %s", lineNumber, cronExpr, cmd))
 
 	updatedContent := strings.Join(lines, "\n")
 	err = writeCronFile(updatedContent)
@@ -104,8 +104,8 @@ func DeleteCronEntry(lineNumber int) error {
 	if err != nil {
 		return err
 	}
-	defer backup.FlushHistoryCache()
-	backup.CacheCronFile(content)
+	defer history.FlushHistoryCache()
+	history.CacheCronFile(content)
 
 	lines := strings.Split(content, "\n")
 	if lineNumber < 1 || lineNumber > len(lines) {
@@ -127,7 +127,7 @@ func DeleteCronEntry(lineNumber int) error {
 
 	updatedContent := strings.Join(lines, "\n")
 
-	backup.AddChangeLog("delete " + deletedCronExpr + " " + deletedCmd)
+	history.AddChangeLog("delete " + deletedCronExpr + " " + deletedCmd)
 
 	// Write the updated crontab
 	err = writeCronFile(updatedContent)
@@ -144,8 +144,8 @@ func StopCronEntry(lineNumber int) error {
 		return err
 	}
 
-	defer backup.FlushHistoryCache()
-	backup.CacheCronFile(content)
+	defer history.FlushHistoryCache()
+	history.CacheCronFile(content)
 
 	lines := strings.Split(content, "\n")
 	if lineNumber < 1 || lineNumber > len(lines) {
@@ -156,7 +156,7 @@ func StopCronEntry(lineNumber int) error {
 	lines[lineNumber-1] = "#" + lines[lineNumber-1]
 	updatedContent := strings.Join(lines, "\n")
 
-	backup.AddChangeLog("stop INDEX " + lines[lineNumber-1])
+	history.AddChangeLog("stop INDEX " + lines[lineNumber-1])
 
 	// Write the updated crontab
 	err = writeCronFile(updatedContent)
@@ -172,8 +172,8 @@ func StartCronEntry(lineNumber int) error {
 		return err
 	}
 
-	defer backup.FlushHistoryCache()
-	backup.CacheCronFile(content)
+	defer history.FlushHistoryCache()
+	history.CacheCronFile(content)
 
 	lines := strings.Split(content, "\n")
 	if lineNumber < 1 || lineNumber > len(lines) {
@@ -184,7 +184,7 @@ func StartCronEntry(lineNumber int) error {
 	lines[lineNumber-1] = strings.TrimLeft(lines[lineNumber-1], "#")
 	updatedContent := strings.Join(lines, "\n")
 
-	backup.AddChangeLog("start INDEX " + lines[lineNumber-1])
+	history.AddChangeLog("start INDEX " + lines[lineNumber-1])
 
 	// Write the updated crontab
 	err = writeCronFile(updatedContent)
@@ -225,7 +225,7 @@ func readCronFile() (string, error) {
 		return "", fmt.Errorf("failed to execute crontab -l: %v", err)
 	}
 	content := string(output)
-	backup.CacheCronFile(content)
+	history.CacheCronFile(content)
 	return strings.TrimSpace(content), nil
 }
 func writeCronFile(content string) error {
